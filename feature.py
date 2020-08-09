@@ -3,18 +3,20 @@ import cv2
 import numpy as np
 
 class FeatureExtractor(object):
-    def __init__(self, maxCorners=3000):
+    def __init__(self, maxCorners=3000, minDistance=10):
         ### Define the number of grids to divide ###
         self.Gx = 8
         self.Gy = 6
+        self.last = None ### For feature matching ###
 
         ### Initialize and ORB detector ###
         self.orb = cv2.ORB_create()
+        self.bf = cv2.BFMatcher()
         
         ### Intialize other variables ###
         self.maxCorners = maxCorners
         self.qualityLevel = 0.01
-        self.minDistance = 10
+        self.minDistance = minDistance
 
     ### Extracting key features using ORB ###
     def getKeyPoints(self, frame):
@@ -43,7 +45,18 @@ class FeatureExtractor(object):
         if(len(frame.shape) == 3 and frame.shape[2] != 1):
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-        corners = cv2.goodFeaturesToTrack(frame, self.maxCorners, self.qualityLevel, self.minDistance)
-        corners = np.int0(corners) # Parse the coords back to int 
 
-        return corners
+        ### Detecting key points ###
+        corners = cv2.goodFeaturesToTrack(frame, self.maxCorners, self.qualityLevel, self.minDistance)
+
+        ### Extraction ###
+        kps = [cv2.KeyPoint(x=f[0][0], y=f[0][1], _size=20) for f in corners]
+        kps, des = self.orb.compute(frame, kps)
+        self.last = {'kps' : kps, 'des' : des}
+
+        ### Matching ###
+        matches = None
+        if(self.last is not None):
+            matches = self.bf.match(des, self.last['des'])
+
+        return kps, des, matches

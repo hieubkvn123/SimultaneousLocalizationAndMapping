@@ -11,7 +11,7 @@ args = vars(parser.parse_args())
 video = cv2.VideoCapture(args['video'])
 
 ### minDistance and maxCorners for cv2.goodFeaturesToTrack ###
-extractor = FeatureExtractor(maxCorners=5000,minDistance=3)
+extractor = FeatureExtractor(maxCorners=3000,minDistance=3)
 
 
 def processFrame(frame):
@@ -27,10 +27,14 @@ def processFrame(frame):
         x, y = map(lambda x : int(round(x)), p.pt)
         cv2.circle(frame, (x,y), color=(0,255,0), radius = 3)
     '''
-    corners = extractor.goodFeaturesToTrack(frame)
+    kps, des, matches = extractor.goodFeaturesToTrack(frame)
 
-    for i in corners:
-        x, y = i.ravel() 
+    if(matches is None):
+        return
+
+    for p in kps:
+        ### Basically round key points to integers ###
+        x, y = map(lambda x : int(round(x)), p.pt)
         cv2.circle(frame, (x,y), color=(0,255,0), radius = 3)
 
     return frame
