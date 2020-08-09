@@ -56,7 +56,16 @@ class FeatureExtractor(object):
 
         ### Matching ###
         matches = None
+        matching_pairs = []
         if(self.last is not None):
-            matches = self.bf.match(des, self.last['des'])
+            # matches = self.bf.match(des, self.last['des'])
+            ### Find matching points from the last frame ###
+            matches = self.bf.knnMatch(des, self.last['des'], k=2)
 
-        return kps, des, matches
+            ### Since we got 2 best matches per DMatch object ###
+            for m1, m2 in matches:
+                ### if the first match is considerably closer ###
+                if(m1.distance < 0.75 * m2.distance):
+                    matching_pairs.append((kps[m1.queryIdx], self.last['kps'][m1.trainIdx]))
+
+        return kps, des, matching_pairs

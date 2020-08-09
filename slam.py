@@ -16,7 +16,7 @@ extractor = FeatureExtractor(maxCorners=3000,minDistance=3)
 
 def processFrame(frame):
     ### Convert to gray (Somehow computationally more efficient) ###
-    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    # frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
     # keypoints = extractor.getKeyPoints(frame)
 
@@ -36,6 +36,12 @@ def processFrame(frame):
         ### Basically round key points to integers ###
         x, y = map(lambda x : int(round(x)), p.pt)
         cv2.circle(frame, (x,y), color=(0,255,0), radius = 3)
+ 
+    for pt1, pt2 in matches:
+        x1, y1 = map(lambda x : int(round(x)), pt1.pt)
+        x2, y2 = map(lambda x : int(round(x)), pt2.pt)
+
+        cv2.line(frame, (x1, y1), (x2, y2), (0,0,255), thickness=2)
 
     return frame
 
