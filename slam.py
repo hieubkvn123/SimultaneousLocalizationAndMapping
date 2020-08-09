@@ -1,6 +1,7 @@
 import os
 import cv2
 
+from feature import FeatureExtractor
 from argparse import ArgumentParser
 
 parser = ArgumentParser()
@@ -8,11 +9,19 @@ parser.add_argument("-v", '--video', help="Input video path", required=True)
 args = vars(parser.parse_args())
 
 video = cv2.VideoCapture(args['video'])
+extractor = FeatureExtractor()
+
 
 def processFrame(frame):
+    ### Convert to gray (Somehow computationally more efficient) ###
     frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-    ### Preprocessing steps ###
+    keypoints = extractor.getKeyPoints(frame)
+
+    for p in keypoints:
+        ### Basically round key points to integers ###
+        x, y = map(lambda x : int(round(x)), p.pt)
+        cv2.circle(frame, (x,y), color=(0,255,0), radius = 3)
 
     return frame
 
