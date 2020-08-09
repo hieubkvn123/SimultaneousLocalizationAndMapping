@@ -32,15 +32,14 @@ def processFrame(frame):
     if(matches is None):
         return
 
-    for p in kps:
-        ### Basically round key points to integers ###
-        x, y = map(lambda x : int(round(x)), p.pt)
-        cv2.circle(frame, (x,y), color=(0,255,0), radius = 3)
- 
     for pt1, pt2 in matches:
-        x1, y1 = map(lambda x : int(round(x)), pt1.pt)
-        x2, y2 = map(lambda x : int(round(x)), pt2.pt)
+        x1, y1 = map(lambda x : int(round(x)), pt1)
+        x2, y2 = map(lambda x : int(round(x)), pt2)
 
+        ### Mark the feature at this frame ###
+        cv2.circle(frame, (x1 , y1), color=(0,255,0), radius = 2)
+        
+        ### Mark a line from the feature from this frame and its match from previous frame ##
         cv2.line(frame, (x1, y1), (x2, y2), (0,0,255), thickness=2)
 
     return frame

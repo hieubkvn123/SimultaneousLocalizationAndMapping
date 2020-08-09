@@ -2,6 +2,9 @@ import os
 import cv2
 import numpy as np
 
+from skimage.measure import ransac
+from skimage.transform import FundamentalMatrixTransform
+
 class FeatureExtractor(object):
     def __init__(self, maxCorners=3000, minDistance=10):
         ### Define the number of grids to divide ###
@@ -52,7 +55,7 @@ class FeatureExtractor(object):
         ### Extraction ###
         kps = [cv2.KeyPoint(x=f[0][0], y=f[0][1], _size=20) for f in corners]
         kps, des = self.orb.compute(frame, kps)
-        self.last = {'kps' : kps, 'des' : des}
+        '''self.last = {'kps' : kps, 'des' : des}'''
 
         ### Matching ###
         matches = None
@@ -66,6 +69,22 @@ class FeatureExtractor(object):
             for m1, m2 in matches:
                 ### if the first match is considerably closer ###
                 if(m1.distance < 0.75 * m2.distance):
-                    matching_pairs.append((kps[m1.queryIdx], self.last['kps'][m1.trainIdx]))
+                    kp1 = kps[m1.queryIdx].pt
+                    kp2 = self.last['kps'][m1.trainIdx].pt
+                    matching_pairs.append((kp1, kp2))
 
+      
+        ### Filter noises using a fundamental matrix ###
+        if(len(matching_pairs) > 0):
+            matching_pairs = np.array(matching_pairs)
+            model, inliers = ransac((matching_pairs[:, 0], matching_pairs[:, 1]),
+                    FundamentalMatrixTransform,
+                    min_samples = 8,
+                    residual_threshold = 1,
+                    max_trials = 1000)
+
+            matching_pairs = matching_pairs[inliers]
+
+        ### Store pass features ###
+        self.last = {'kps' : kps, 'des' : des}
         return kps, des, matching_pairs
