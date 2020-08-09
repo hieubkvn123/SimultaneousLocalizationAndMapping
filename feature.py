@@ -77,6 +77,11 @@ class FeatureExtractor(object):
         ### Filter noises using a fundamental matrix ###
         if(len(matching_pairs) > 0):
             matching_pairs = np.array(matching_pairs)
+            
+            ### normalize to move to 0 ###
+            matching_pairs[:,:,0] -= frame.shape[0] // 2
+            matching_pairs[:,:,1] -= frame.shape[1] // 2
+
             model, inliers = ransac((matching_pairs[:, 0], matching_pairs[:, 1]),
                     FundamentalMatrixTransform,
                     min_samples = 8,

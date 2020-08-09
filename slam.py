@@ -32,9 +32,14 @@ def processFrame(frame):
     if(matches is None):
         return
 
+    def denormalize(pt):
+        return int(round(pt[0] + frame.shape[0] / 2)), int(round(pt[1] + frame.shape[1] / 2))
+
     for pt1, pt2 in matches:
-        x1, y1 = map(lambda x : int(round(x)), pt1)
-        x2, y2 = map(lambda x : int(round(x)), pt2)
+        x1, y1 = denormalize(pt1)
+        x2, y2 = denormalize(pt2)
+
+        ### Denomalize to display ###
 
         ### Mark the feature at this frame ###
         cv2.circle(frame, (x1 , y1), color=(0,255,0), radius = 3)
