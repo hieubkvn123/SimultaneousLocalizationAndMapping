@@ -10,6 +10,7 @@ args = vars(parser.parse_args())
 
 video = cv2.VideoCapture(args['video'])
 
+### Some changes here too ###
 ### minDistance and maxCorners for cv2.goodFeaturesToTrack ###
 extractor = FeatureExtractor(maxCorners=3000,minDistance=3)
 

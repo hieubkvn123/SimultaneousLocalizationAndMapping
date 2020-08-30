@@ -5,6 +5,7 @@ import numpy as np
 from skimage.measure import ransac
 from skimage.transform import FundamentalMatrixTransform
 
+### Some changes here ###
 class FeatureExtractor(object):
     def __init__(self, maxCorners=3000, minDistance=10):
         ### Define the number of grids to divide ###
